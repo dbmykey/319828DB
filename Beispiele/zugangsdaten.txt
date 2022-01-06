@@ -1,0 +1,7 @@
+Datenbank
+
+Server:		localhost
+Datenbank:	emmasshop
+Nutzer:		localemma
+Passwort:	tzY[5PfJb9I.!Ghq
+
