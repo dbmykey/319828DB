@@ -82,4 +82,7 @@
     </table>
 
     <button type="submit" name="action" value="insert">Datensatz einfügen</button>
+    <button type="submit" name="action" value="update">Datensatz aktualisieren</button>
+    <button type="submit" name="action" value="delete">Datensatz löschen</button>
+    <input type="hidden" name="currentrecordid" value="<?php echo $currentrecordid;?>">
 </form>    
