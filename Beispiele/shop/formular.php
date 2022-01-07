@@ -9,7 +9,7 @@
         <h1>Emmas shop</h1>
 
 <?php
-    //require_once 'config.php';
+    require_once 'config.php';
 
 
     function _dump($t) {
@@ -29,16 +29,17 @@
         }
         return '';
     }
+    function canEdit() {
+        global $currentrecordid;
+        if($currentrecordid)
+            return '';
+        return 'disabled';
+    }
 ?>
 
 <?php
-
+    global $currentrecordid;
     // Verbindung zur Datenbank aufbauen
-
-    $servername     =   'localhost';
-    $user           =   'localemma';
-    $password       =   'tzY[5PfJb9I.!Ghq';
-    $dbname         =   'emmasshop';
 
     $conn           = mysqli_connect($servername, $user, $password, $dbname);
     if(!$conn) {
@@ -94,13 +95,32 @@
                 foreach($keys as $key){
                     $set[] = $key . '=' . "'" . getPostVar($key) . "'";   
                 }
-
-                _dump($set);
-
+                $set    = implode(', ', $set);
+               
+                $sql    = 'UPDATE ' . $tablename . ' SET ' . $set . ' WHERE id=' . $currentrecordid;
+                $result = mysqli_query($conn, $sql);
+                if($result) {
+                    echo 'Datensatz wurde aktualisiert';
+                } else {
+                    echo 'Konnte Datensatz nicht aktualisieren';
+                }
             }
             break;
         case 'delete':  // Datensatz löschen
-
+            // DELETE FROM tabellenname WHERE ...
+            if($currentrecordid){
+                $sql = 'DELETE FROM ' . $tablename . ' WHERE id=' . $currentrecordid;
+                $result = mysqli_query($conn, $sql);
+                if($result) {
+                    echo 'Datensatz wurde gelöscht';
+                    $currentrecordid = 0;
+                    foreach($defs[$tablename] as $key){
+                        $_POST[$key] = '';
+                    }
+                } else {
+                    echo 'Konnte Datensatz nicht löschen';
+                }
+            }
             break;
     };
 
