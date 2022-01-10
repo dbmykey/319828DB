@@ -4,6 +4,15 @@
         <meta charset="utf-8">
 	    <title>Globales Formular</title>
         <link rel="stylesheet" href="../../css/jscourse.css">
+        <style>
+                th.ordered {
+                    background-color:rgba(0, 128, 128, 0.5)!important;
+                }
+                th button {
+                    border:none;
+                    background-color:transparent;
+                }
+        </style>
     </head>
     <body>
         <h1>Emmas shop</h1>
@@ -63,6 +72,7 @@
   
     $action             = getPostVar('action');
     $currentrecordid    = getPostVar('currentrecordid', 0);
+
 
     $orderby            = getPostVar('orderby');
     $orderdir           = getPostVar('orderdir');
@@ -171,7 +181,7 @@
     include 'templates/' . $tablename . 'formular.php';
    
     echo '</form>';
-    
+
     mysqli_close($conn);
 ?>
 
