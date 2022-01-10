@@ -1,4 +1,4 @@
-<form method="post">
+
     <table class="bordered">
         <thead>
             <tr>
@@ -85,4 +85,6 @@
     <button type="submit" name="action" value="update" <?php echo canEdit();?>>Datensatz aktualisieren</button>
     <button type="submit" name="action" value="delete" <?php echo canEdit();?>>Datensatz löschen</button>
     <input type="hidden" name="currentrecordid" value="<?php echo $currentrecordid;?>">
-</form>    
+    <input type="hidden" name="orderby" value="<?php echo $orderby;?>">
+    <input type="hidden" name="orderdir" value="<?php echo $orderdir;?>">
+   
