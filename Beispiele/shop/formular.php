@@ -4,15 +4,7 @@
         <meta charset="utf-8">
 	    <title>Globales Formular</title>
         <link rel="stylesheet" href="../../css/jscourse.css">
-        <style>
-                th.ordered {
-                    background-color:rgba(0, 128, 128, 0.5)!important;
-                }
-                th button {
-                    border:none;
-                    background-color:transparent;
-                }
-        </style>
+        
     </head>
     <body>
         <h1>Emmas shop</h1>
@@ -73,22 +65,22 @@
     $action             = getPostVar('action');
     $currentrecordid    = getPostVar('currentrecordid', 0);
 
-
-    $orderby            = getPostVar('orderby');
+    $orderby            = getPostVar('orderby', false);
     $orderdir           = getPostVar('orderdir');
 
     $neworderby         = getPostVar('neworderby', false);
     if($neworderby) {
-        if($neworderby != $orderby) {
+        if($neworderby != $orderby) { 
             $orderby    = $neworderby;
-            $orderdir  = 'ASC';
+            $orderdir   = 'ASC';
         } else {
             switch($orderdir) {
                 case 'ASC':
                     $orderdir = 'DESC';
                     break;
                 case 'DESC':
-                    $orderdir = 'ASC';
+                    $orderby = false;
+                    $orderdir = '';
                     break;
                 default:
                     $orderdir = 'ASC';
@@ -96,24 +88,19 @@
         }
     }
 
-
-    // Einstellung eines anderen Datensatzes aus der Listenansicht
-
-    $selectid = getPostVar('select', false);
+    $selectid           = getPostVar('select', false);
     if($selectid) {
-        $sql = 'SELECT * FROM ' . $tablename . ' WHERE id=' . $selectid;
+        $sql    = 'SELECT * FROM ' . $tablename . ' WHERE id=' . $selectid;
         $result = mysqli_query($conn, $sql);
         if($result) {
-            // Daten abholen
             $record = mysqli_fetch_assoc($result);
-            foreach($defs[$tablename] as $key){
+            foreach($defs[$tablename] as $key) {
                 $_POST[$key] = $record[$key];
             }
             $currentrecordid = $selectid;
         } else {
-            echo 'Konnte Datensatz nicht auswählen';
+            echo 'Konnte Datensatz nicht laden';
         }
-
     }
 
     switch($action){
@@ -177,6 +164,7 @@
     };
 
     echo '<form method="post">';
+
     include 'templates/listenansicht.php';
     include 'templates/' . $tablename . 'formular.php';
    

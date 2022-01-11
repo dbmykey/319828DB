@@ -87,4 +87,3 @@
     <input type="hidden" name="currentrecordid" value="<?php echo $currentrecordid;?>">
     <input type="hidden" name="orderby" value="<?php echo $orderby;?>">
     <input type="hidden" name="orderdir" value="<?php echo $orderdir;?>">
-   
