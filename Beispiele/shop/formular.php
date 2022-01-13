@@ -20,7 +20,10 @@
     }
     function getPostVar($key, $default = '') {
         if(isset($_POST[$key])) {
-            return $_POST[$key];
+            if(is_string($_POST[$key]))
+                return strip_tags($_POST[$key]);
+            else
+                return $_POST[$key];
         }
         return $default;
     }
@@ -42,13 +45,20 @@
     global $currentrecordid;
     // Verbindung zur Datenbank aufbauen
 
+    
+
     $conn           = mysqli_connect($servername, $user, $password, $dbname);
     if(!$conn) {
         die('Keine Verbindung zur Datenbank');
     }
 
-    $tablename      =   'kunden';
 
+    $tablename      =   'kunden';
+    if(isset($_GET['tablename'])) {
+        $tablename = $_GET['tablename'];
+    }
+
+   
     $defs = [
         'kunden' => [
             'Anrede',
@@ -59,8 +69,21 @@
             'Plz',
             'Ort',
             'Email'
+        ],
+        'produkte' => [
+            'Name',
+            'Beschreibung',
+            'Bildurl',
+            'Einheit',
+            'Preis'
         ]
     ];
+
+    foreach(array_keys($defs) as $tabn ) {
+        echo '<a href="formular.php?tablename=' . $tabn . '">';
+        echo ucfirst($tabn);
+        echo '</a> ';
+    }
   
     $action             = getPostVar('action');
     $currentrecordid    = getPostVar('currentrecordid', 0);
@@ -87,7 +110,7 @@
             }
         }
     }
-
+  
     $selectid           = getPostVar('select', false);
     if($selectid) {
         $sql    = 'SELECT * FROM ' . $tablename . ' WHERE id=' . $selectid;
@@ -103,6 +126,18 @@
         }
     }
 
+    _dump($_FILES);
+    if(isset($_FILES['produktbildupload'])) {
+        if($_FILES['produktbildupload']['error'] == 0) {
+            $path = __DIR__ . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . $_FILES['produktbildupload']['name'];
+            $result = move_uploaded_file($_FILES['produktbildupload']['tmp_name'], $path);
+            if($result){
+                $_POST['Bildurl'] = $_FILES['produktbildupload']['name'];
+            }
+        }
+    }
+
+    _dump($_POST);
     switch($action){
         case 'insert':  // Datensatz einfügen
 
@@ -143,6 +178,15 @@
                 } else {
                     echo 'Konnte Datensatz nicht aktualisieren';
                 }
+                /*
+                $q = "UPDATE `" . $tablename . "` SET " . $set . " WHERE `id` = ?";
+                if($stmt = $conn->prepare($q)){
+                    $stmt->bind_param("i", $currentrecordid);
+                    $stmt->execute();
+                    $stmt->fetch();
+                    $stmt->close();
+                }
+                */
             }
             break;
         case 'delete':  // Datensatz löschen
@@ -162,14 +206,14 @@
             }
             break;
     };
-
-    echo '<form method="post">';
+   
+    echo '<br><br><form method="post" enctype="multipart/form-data">';
 
     include 'templates/listenansicht.php';
     include 'templates/' . $tablename . 'formular.php';
    
     echo '</form>';
-
+    
     mysqli_close($conn);
 ?>
 

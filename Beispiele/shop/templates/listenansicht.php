@@ -7,7 +7,7 @@
     if($filter) {
         $conditions = [];
         foreach($defs[$tablename] as $key) {
-            $value = $filter[$key];
+            $value = strip_tags($filter[$key]);
             if($value) {
                 $conditions[] = $key . " LIKE '%" . $value . "%'";
             }
@@ -24,14 +24,16 @@
     if($orderby) {
         $sql .= ' ORDER BY ' . $orderby . ' ' . $orderdir;
     }
-    $result = mysqli_query($conn, $sql);
-    if(!$result)
-        return;
     
+    $result = mysqli_query($conn, $sql);
+
+    if(!$result)
+        die('Keine Tabelle');
+      
     echo '<table class="bordered">';
     echo '<thead>';
     echo '<tr>';
-
+    
     foreach($defs[$tablename] as $key) {
         if($key == $orderby) {
             $class = 'ordered';
@@ -47,17 +49,17 @@
             $buttonclass = '';
         }
         echo '<th class="' . $class . '">';
-        echo '<button class="' . $buttonclass . '" type="submit" name="neworderby" value="' . $key . '">';
+        echo '<button class="headline ' . $buttonclass . '" type="submit" name="neworderby" value="' . $key . '">';
         echo $key;
         echo '</button>';
 
         if($filter){
-            $value = $filter[$key];
+            $value = strip_tags($filter[$key]);
         } else {
             $value = '';
         }
         echo '<input class="inline" name="filter[' . $key . ']" value="' . $value . '">';
-        echo '<button type="submit" name="applyfiter">s</button>';
+        echo '<button class="lookfor icon icon-search" type="submit" name="applyfiter"></button>';
         echo '</th>';
     }
 
@@ -75,6 +77,11 @@
         echo '<tr class="' . $class . '">';
         foreach($defs[$tablename] as $key){
             echo '<td>';
+
+            if($key == 'Bildurl') {
+                if(file_exists(realpath('images/' . $record[$key])))
+                    echo '<img width="160" src="images/' . $record[$key] . '"><br>';
+            }
             echo $record[$key];
             echo '</td>';
         }
