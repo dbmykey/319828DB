@@ -8,41 +8,66 @@
 
 	<body>
 		<h1>Daten in Tabelle</h1>
+        <a href="tabelle.php">Anfang</a>
+        <a href="tabelle.php?offset=20">Ab 20</a>
+        <a href="tabelle.php?offset=40">Ab 40</a>
         <table class="bordered">
-    <?php
+<?php
+    $server     = 'localhost';
+    $user       = 'root';
+    $password   = '';
+    $dbname     = 'world';
 
-    $server 	= 'localhost';
-    $user		= 'root';
-    $password	= '';
-    $dbname		= 'world';
-    
-    $conn 		= mysqli_connect($server, $user, $password, $dbname);
+    $conn       = mysqli_connect($server, $user, $password, $dbname);
     if(!$conn)
         die('Verbindung gescheitert');
 
-    $sql        = 'SELECT Code, Name, Population FROM Country LIMIT 20';
-    $result     = $conn->query($sql);
+    $conn->set_charset('utf8mb4');
+    
 
+    print_r($_GET);
+
+
+    if(isset($_GET['offset'])){
+        $offset = $_GET['offset'];
+    } else {
+        $offset = 0;
+    }
+
+    print_r($offset);
+
+    $sql = "SELECT Code AS 'Länder Code', Name, Population FROM Country LIMIT $offset, 20";
+   
+    $result = $conn->query($sql);
     if($result) {
-
-
-
-        while($record = $result->fetch_assoc()) {
+        $record = $result->fetch_assoc();
+        echo '<thead>';
+        echo '<tr>';
+        foreach($record as $key => $value) {
+            echo '<th>';
+            echo htmlentities($key);
+            echo '</th>';
+        }
+        echo '</tr>';
+        echo '</thead>';
+        while($record){
             echo '<tr>';
             foreach($record as $key => $value) {
-                $value = $record[$key];
                 echo '<td>';
-                echo $value;
+                echo htmlentities($value);
                 echo '</td>';
             }
+
             echo '</tr>';
+
+            $record = $result->fetch_assoc();
         }
-        $result->free_result();
     }
-   
+
+
     $conn->close();
-    
-    ?>
+   
+?>
 
         </table>
     </body>
