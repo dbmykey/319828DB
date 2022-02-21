@@ -10,20 +10,64 @@
         <h1>Emmas shop</h1>
         <pre>
 <?php
+
+    require('config.php');
+
+    $conn = mysqli_connect($server, $user, $password, $dbname);
+
+
     function isSelected($key, $comparewith) {
         if(getPVar($key) == $comparewith)
             return 'selected';
         return '';
     }
     function getPVar($key, $default = '') {
-        if(isset($_GET[$key]))
-            return $_GET[$key];
+        if(isset($_POST[$key]))
+            return $_POST[$key];
         return $default;
     }
-    print_r($_GET);
+
+    $action = getPVar('action', false);
+
+    switch($action) {
+        case 'insert':
+            echo 'Datensatz einfügen <br>';
+
+            /* INSERT INTO kunden (`Anrede`, `Vorname`, ...) VALUES ('Frau', 'Minnie', ...)*/
+
+
+            $keys   = [];
+            $values = [];
+            foreach($defs['kunden'] as $key) {
+                $keys[]     = '`' . $key . '`';
+                $values[]   = "'" . getPVar($key) . "'";
+            }
+
+            $keys   = implode(', ', $keys);
+            $values = implode(', ', $values);
+
+            print_r($keys . '<br>');
+            print_r($values . '<br>');
+
+            $sql = "INSERT INTO `kunden` ($keys) VALUES ($values);";
+
+
+            print_r($sql);
+
+            $result = $conn->query($sql);
+            if(!$result)
+                'Einfügen schlug fehl';
+            else {
+                echo 'Datensatz wurde eingefügt<br>';
+                print_r($result);  
+            }
+              
+            break;
+    }
+
 ?>
         </pre>
-        <form>
+        <form method="post">
             <table>
                 <tr>
                     <td>
@@ -91,3 +135,6 @@
 
     </body>
 </html>
+<?php
+    $conn->close();
+?>

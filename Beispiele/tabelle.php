@@ -24,17 +24,11 @@
 
     $conn->set_charset('utf8mb4');
     
-
-    print_r($_GET);
-
-
     if(isset($_GET['offset'])){
         $offset = $_GET['offset'];
     } else {
         $offset = 0;
     }
-
-    print_r($offset);
 
     $sql = "SELECT Code AS 'Länder Code', Name, Population FROM Country LIMIT $offset, 20";
    
@@ -54,7 +48,7 @@
             echo '<tr>';
             foreach($record as $key => $value) {
                 echo '<td>';
-                echo htmlentities($value);
+                echo $value;
                 echo '</td>';
             }
 
