@@ -1034,7 +1034,7 @@ img.centered {
 
 .bordered th {
     /*display:none;*/
-    max-width:10px;
+    /*max-width:10px;*/
     position:relative;
 }
 .bordered th.ordered {

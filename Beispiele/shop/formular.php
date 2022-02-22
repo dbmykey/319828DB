@@ -13,6 +13,7 @@
 
     require('config.php');
 
+    $tablename = 'kunden';
     $conn = mysqli_connect($server, $user, $password, $dbname);
 
 
@@ -26,14 +27,21 @@
             return $_POST[$key];
         return $default;
     }
+    function isEditable() {
+        $cid = getPVar('currentrecordid', false);
+        if($cid === false || empty($cid))
+            return 'disabled';
+        return '';
+    }
 
-    $action = getPVar('action', false);
+    print_r($_POST);
+    $currentrecordid    = getPVar('currentrecordid', false);
+    $action             = getPVar('action', false);
 
     switch($action) {
         case 'insert':
-            echo 'Datensatz einfügen <br>';
 
-            /* INSERT INTO kunden (`Anrede`, `Vorname`, ...) VALUES ('Frau', 'Minnie', ...)*/
+            /* INSERT INTO `kunden` (`Anrede`, `Vorname`, ...) VALUES ('Frau', 'Minnie', ...)*/
 
 
             $keys   = [];
@@ -46,28 +54,61 @@
             $keys   = implode(', ', $keys);
             $values = implode(', ', $values);
 
-            print_r($keys . '<br>');
-            print_r($values . '<br>');
-
             $sql = "INSERT INTO `kunden` ($keys) VALUES ($values);";
-
-
-            print_r($sql);
 
             $result = $conn->query($sql);
             if(!$result)
-                'Einfügen schlug fehl';
+                echo 'Einfügen schlug fehl';
             else {
-                echo 'Datensatz wurde eingefügt<br>';
-                print_r($result);  
+                $currentrecordid            = $conn->insert_id;
+                $_POST['currentrecordid']   = $currentrecordid;
+                echo 'Datensatz wurde eingefügt (' . $currentrecordid . ')<br>'; 
             }
               
+            break;
+        case 'update':
+            /* UPDATE `kunden` SET `Attribut` = 'Wert', ... WHERE ID=$currentrecordid*/
+            if($currentrecordid) {
+                $sets = [];
+                foreach($defs['kunden'] as $key){
+                    $sets[] = '`' . $key . "` = '" . getPVar($key) . "'";
+                }
+                $sets = implode(', ', $sets);
+
+                $sql = "UPDATE `kunden` SET $sets WHERE ID = $currentrecordid;";
+                $result = $conn->query($sql);
+                if(!$result) 
+                    echo 'Aktualisierung schlug fehl';
+                else 
+                    echo 'Datensatz wurde aktualisiert';
+                
+            }
+
+            break;
+        case 'delete':
+            /* DELETE FROM `kunden` WHERE ID=$currentrecordid*/
+            if($currentrecordid) {
+                $sql = "DELETE FROM `kunden` WHERE ID=$currentrecordid";
+                $result = $conn->query($sql);
+                if(!$result)
+                    echo 'Löschen schlug fehl';
+                else {   
+                    echo 'Datensatz wurde gelöscht';
+                    $currentrecordid = false;
+                    $_POST['currentrecordid'] = false;
+                }  
+            }
             break;
     }
 
 ?>
         </pre>
         <form method="post">
+          
+            <?php 
+                require('liste.php');
+            ?>
+           
             <table>
                 <tr>
                     <td>
@@ -131,6 +172,9 @@
                 </tr>
             </table>
             <button type="submit" name="action" value="insert">Datensatz einfügen</button>
+            <button type="submit" name="action" value="update" <?php echo isEditable();?>>Datensatz aktualisieren</button>
+            <button type="submit" name="action" value="delete" <?php echo isEditable();?>>Datensatz löschen</button>
+            <input type="hidden" name="currentrecordid" value="<?php echo $currentrecordid;?>"/>
         </form>
 
     </body>
