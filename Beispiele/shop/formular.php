@@ -34,9 +34,24 @@
         return '';
     }
 
-    print_r($_POST);
     $currentrecordid    = getPVar('currentrecordid', false);
     $action             = getPVar('action', false);
+
+    $selrecord          = getPVar('selrecord', false);
+    if($selrecord) {
+        $sql = "SELECT * FROM `$tablename` WHERE ID = $selrecord;";
+        $result = $conn->query($sql);
+        if($result) {
+            $record = $result->fetch_assoc();
+            if($record) {
+                foreach($defs[$tablename] as $key) {
+                    $_POST[$key] = $record[$key];
+                }
+                $_POST['currentrecordid']   = $selrecord;
+                $currentrecordid            = $selrecord;
+            }
+        }
+    }
 
     switch($action) {
         case 'insert':
@@ -46,7 +61,7 @@
 
             $keys   = [];
             $values = [];
-            foreach($defs['kunden'] as $key) {
+            foreach($defs[$tablename] as $key) {
                 $keys[]     = '`' . $key . '`';
                 $values[]   = "'" . getPVar($key) . "'";
             }
@@ -54,7 +69,7 @@
             $keys   = implode(', ', $keys);
             $values = implode(', ', $values);
 
-            $sql = "INSERT INTO `kunden` ($keys) VALUES ($values);";
+            $sql = "INSERT INTO `$tablename` ($keys) VALUES ($values);";
 
             $result = $conn->query($sql);
             if(!$result)
@@ -70,12 +85,12 @@
             /* UPDATE `kunden` SET `Attribut` = 'Wert', ... WHERE ID=$currentrecordid*/
             if($currentrecordid) {
                 $sets = [];
-                foreach($defs['kunden'] as $key){
+                foreach($defs[$tablename] as $key){
                     $sets[] = '`' . $key . "` = '" . getPVar($key) . "'";
                 }
                 $sets = implode(', ', $sets);
 
-                $sql = "UPDATE `kunden` SET $sets WHERE ID = $currentrecordid;";
+                $sql = "UPDATE `$tablename` SET $sets WHERE ID = $currentrecordid;";
                 $result = $conn->query($sql);
                 if(!$result) 
                     echo 'Aktualisierung schlug fehl';
@@ -88,7 +103,7 @@
         case 'delete':
             /* DELETE FROM `kunden` WHERE ID=$currentrecordid*/
             if($currentrecordid) {
-                $sql = "DELETE FROM `kunden` WHERE ID=$currentrecordid";
+                $sql = "DELETE FROM `$tablename` WHERE ID=$currentrecordid";
                 $result = $conn->query($sql);
                 if(!$result)
                     echo 'Löschen schlug fehl';
@@ -109,7 +124,7 @@
                 require('liste.php');
             ?>
            
-            <table>
+            <table class="bordered">
                 <tr>
                     <td>
                         Anrede
